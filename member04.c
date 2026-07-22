@@ -5,16 +5,18 @@
    Dummy version of Member 2's movie names, ONLY so this file can run
    alone (just to print which movie the price is for).
 ------------------------------------------------------------------- */
-char movies[3][30] =
+char movies[5][30] =
 {
-    "Superman",
-    "Avatar",
-    "Jurassic World"
+    "Supergirl",
+    "Avatar 03",
+    "Jurassic World Rebirth"
+    "Moana (live action)"
+    "The Odyssey"
 };
 /* ------------------------------------------------------------------ */
 
 /* ---- Ticket base price for each movie (Rs.) ---- */
-double basePrice[3] = {800.00, 750.00, 900.00};
+double basePrice[5] = {800.00, 750.00, 900.00, 850.00, 900.00};
 
 /*
    Calculate final price after discount.
