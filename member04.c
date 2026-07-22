@@ -57,7 +57,7 @@ int main()
     double price;
 
     printf("Movies available: 1-Superman  2-Avatar  3-Jurassic World\n");
-    printf("Select Movie (1-3): ");
+    printf("Select Movie (1-5): ");
     scanf("%d", &movie);
     movie--;
 
