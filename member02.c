@@ -1,28 +1,31 @@
 #include <stdio.h>
 
-char movies[3][30] =
+char movies[5][30] =
 {
-    "Superman",
-    "Avatar",
-    "Jurassic World"
-
+    "Super girl",
+    "Avatar 03",
+    "Jurassic World Rebirth",
+    "Moana(Live Action)",
+    "The Odyssey"
 };
 
-char showTimes[3][2][20] =
+char showTimes[5][2][20] =
 {
     {"10.00 AM", "4.00 PM"},
     {"1.00 PM", "7.00 PM"},
-    {"11.00 AM", "8.00 PM"}
+    {"11.00 AM", "8.00 PM"},
+    {"10.00 AM", "2.00 PM"},
+    {"1.00 PM", "7.00 PM"}
 };
 
-int seats[3][2][5][10] = {0};
+int seats[5][2][5][10] = {0};
 
 void displayMovies()
 {
     int i, j;
     printf("\n=========== MOVIES ===========\n");
 
-    for(i = 0; i < 3; i++)
+    for(i = 0; i < 5; i++)
     {
         printf("\nMovie %d : %s\n", i + 1, movies[i]);
 
@@ -62,25 +65,47 @@ void displaySeatMap(int movie, int show)
 
         printf("\n");
     }
-
-
     printf("\nO = Available\n");
     printf("X = Booked\n");
 }
-
 int main()
 {
-    int movie, show;
+    int movieChoice, showChoice;
 
     displayMovies();
 
-    printf("\nSelect Movie (1-3): ");
-    scanf("%d", &movie);
+    // Movie number input
+    printf("\nEnter movie number (1-5): ");
 
-    printf("Select Show (1-2): ");
-    scanf("%d", &show);
+    if(scanf("%d", &movieChoice) != 1)
+    {
+        printf("\nWrong Input! Please enter numbers only.\n");
+        return 0;
+    }
 
-    displaySeatMap(movie - 1, show - 1);
+    if(movieChoice < 1 || movieChoice > 5)
+    {
+        printf("\nWrong Input! Invalid movie number.\n");
+        return 0;
+    }
+
+    // Show number input
+    printf("Enter show number (1-2): ");
+
+    if(scanf("%d", &showChoice) != 1)
+    {
+        printf("\nWrong Input! Please enter numbers only.\n");
+        return 0;
+    }
+
+    if(showChoice < 1 || showChoice > 2)
+    {
+        printf("\nWrong Input! Invalid show number.\n");
+        return 0;
+    }
+
+    // Convert to 0-based index
+    displaySeatMap(movieChoice - 1, showChoice - 1);
 
     return 0;
 }
