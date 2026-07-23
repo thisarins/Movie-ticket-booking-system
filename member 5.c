@@ -3,38 +3,104 @@
 
 #define MAX 100
 
-struct Booking {
+
+char movies[3][30] =
+{
+    "Supergirl",
+    "Avatar 3",
+    "Jurassic World"
+    "Moana(Live Action)"
+    "The Odesey"
+};
+
+struct Booking
+{
     int bookingID;
     char customerName[50];
     char movieName[50];
     int tickets;
     float price;
-    int status;   // 1 = Active, 0 = Cancelled
+    int status;   //1 = Active, 0 = Cancelled
 };
 
 struct Booking bookings[MAX];
 int count = 0;
 
 
-// Add sample bookings
 void addBooking()
 {
+    int choice;
+
+    if(count >= MAX)
+    {
+        printf("Booking List is Full!\n");
+        return;
+    }
+
     printf("Enter Booking ID: ");
-    scanf("%d", &bookings[count].bookingID);
+
+    if(scanf("%d",&bookings[count].bookingID)!=1)
+    {
+        printf("Invalid Input!\n");
+        while(getchar()!='\n');
+        return;
+    }
+
+   
+    for(int i=0;i<count;i++)
+    {
+        if(bookings[i].bookingID==bookings[count].bookingID)
+        {
+            printf("Booking ID Already Exists!\n");
+            return;
+        }
+    }
 
     printf("Enter Customer Name: ");
-    scanf("%s", bookings[count].customerName);
+    scanf(" %[^\n]", bookings[count].customerName);
 
-    printf("Enter Movie Name: ");
-    scanf("%s", bookings[count].movieName);
+    printf("\nAvailable Movies\n");
+    for(int i=0;i<3;i++)
+    {
+        printf("%d. %s\n",i+1,movies[i]);
+    }
+
+    printf("Select Movie (1-3): ");
+
+    if(scanf("%d",&choice)!=1)
+    {
+        printf("Invalid Input!\n");
+        while(getchar()!='\n');
+        return;
+    }
+
+    if(choice<1 || choice>3)
+    {
+        printf("Invalid Choice!\n");
+        return;
+    }
+
+    strcpy(bookings[count].movieName,movies[choice-1]);
 
     printf("Enter Number of Tickets: ");
-    scanf("%d", &bookings[count].tickets);
+
+    if(scanf("%d",&bookings[count].tickets)!=1 || bookings[count].tickets<=0)
+    {
+        printf("Invalid Input!\n");
+        while(getchar()!='\n');
+        return;
+    }
 
     printf("Enter Ticket Price: ");
-    scanf("%f", &bookings[count].price);
 
-    bookings[count].status = 1;
+    if(scanf("%f",&bookings[count].price)!=1 || bookings[count].price<=0)
+    {
+        printf("Invalid Input!\n");
+        while(getchar()!='\n');
+        return;
+    }
+
+    bookings[count].status=1;
 
     count++;
 
@@ -42,78 +108,102 @@ void addBooking()
 }
 
 
-// Search booking
 void searchBooking()
 {
-    int id, found = 0;
+    int id;
+    int found=0;
 
-    printf("Enter Booking ID to search: ");
-    scanf("%d", &id);
+    printf("Enter Booking ID: ");
 
-    for(int i=0; i<count; i++)
+    if(scanf("%d",&id)!=1)
     {
-        if(bookings[i].bookingID == id)
+        printf("Invalid Input!\n");
+        while(getchar()!='\n');
+        return;
+    }
+
+    for(int i=0;i<count;i++)
+    {
+        if(bookings[i].bookingID==id)
         {
-            printf("\nBooking ID: %d", bookings[i].bookingID);
-            printf("\nCustomer: %s", bookings[i].customerName);
-            printf("\nMovie: %s", bookings[i].movieName);
-            printf("\nTickets: %d", bookings[i].tickets);
+            printf("\nBooking ID : %d\n",bookings[i].bookingID);
+            printf("Customer   : %s\n",bookings[i].customerName);
+            printf("Movie      : %s\n",bookings[i].movieName);
+            printf("Tickets    : %d\n",bookings[i].tickets);
+            printf("Price      : Rs. %.2f\n",bookings[i].price);
 
-            if(bookings[i].status == 1)
-                printf("\nStatus: Active\n");
+            if(bookings[i].status==1)
+                printf("Status     : Active\n");
             else
-                printf("\nStatus: Cancelled\n");
+                printf("Status     : Cancelled\n");
 
-            found = 1;
+            found=1;
             break;
         }
     }
 
-    if(found == 0)
+    if(found==0)
+    {
         printf("Booking Not Found!\n");
+    }
 }
 
 
-// Cancel booking
 void cancelBooking()
 {
-    int id, found = 0;
+    int id;
+    int found=0;
 
-    printf("Enter Booking ID to cancel: ");
-    scanf("%d", &id);
+    printf("Enter Booking ID: ");
 
-    for(int i=0; i<count; i++)
+    if(scanf("%d",&id)!=1)
     {
-        if(bookings[i].bookingID == id)
+        printf("Invalid Input!\n");
+        while(getchar()!='\n');
+        return;
+    }
+
+    for(int i=0;i<count;i++)
+    {
+        if(bookings[i].bookingID==id)
         {
-            bookings[i].status = 0;
-            printf("Booking Cancelled Successfully!\n");
-            found = 1;
+            if(bookings[i].status==0)
+            {
+                printf("Booking Already Cancelled!\n");
+            }
+            else
+            {
+                bookings[i].status=0;
+                printf("Booking Cancelled Successfully!\n");
+            }
+
+            found=1;
             break;
         }
     }
 
-    if(found == 0)
+    if(found==0)
+    {
         printf("Booking Not Found!\n");
+    }
 }
 
 
-// Revenue report
 void revenueReport()
 {
-    float total = 0;
+    float total=0;
 
-    for(int i=0; i<count; i++)
+    for(int i=0;i<count;i++)
     {
-        if(bookings[i].status == 1)
+        if(bookings[i].status==1)
         {
-            total = total + (bookings[i].tickets * bookings[i].price);
+            total += bookings[i].tickets * bookings[i].price;
         }
     }
 
-    printf("\nTotal Revenue = Rs. %.2f\n", total);
+    printf("\n===== Revenue Report =====\n");
+    printf("Total Revenue = Rs. %.2f\n",total);
 }
-
 
 int main()
 {
@@ -121,16 +211,21 @@ int main()
 
     do
     {
-        printf("\n===== Movie Ticket Booking System =====");
-        printf("\n1. Add Booking");
-        printf("\n2. Search Booking");
-        printf("\n3. Cancel Booking");
-        printf("\n4. Revenue Report");
-        printf("\n5. Exit");
+        printf("\n========== Movie Ticket Booking System ==========\n");
+        printf("1. Add Booking\n");
+        printf("2. Search Booking\n");
+        printf("3. Cancel Booking\n");
+        printf("4. Revenue Report\n");
+        printf("5. Exit\n");
 
-        printf("\nEnter your choice: ");
-        scanf("%d",&choice);
+        printf("Enter Choice: ");
 
+        if(scanf("%d",&choice)!=1)
+        {
+            printf("Invalid Input!\n");
+            while(getchar()!='\n');
+            continue;
+        }
 
         switch(choice)
         {
@@ -151,15 +246,15 @@ int main()
                 break;
 
             case 5:
-                printf("Exit System\n");
+                printf("Thank You!\n");
                 break;
 
             default:
                 printf("Invalid Choice!\n");
         }
 
-    }while(choice != 5);
-
+    }while(choice!=5);
 
     return 0;
 }
+
