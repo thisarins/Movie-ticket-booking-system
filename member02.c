@@ -40,7 +40,7 @@ void displaySeatMap(int movie, int show)
 {
     int i, j;
 
-    printf("\n=========== SEAT MAP ==========\n\n");
+    printf("\n============ SEAT MAP ===========\n\n");
 
     printf("     ");
 
@@ -75,34 +75,45 @@ int main()
     displayMovies();
 
     // Movie number input
+    do
+    {
+    printf("-------------------------------------");
     printf("\nEnter movie number (1-5): ");
 
     if(scanf("%d", &movieChoice) != 1)
     {
         printf("\nWrong Input! Please enter numbers only.\n");
-        return 0;
+        while(getchar() != '\n');
+        movieChoice = 0;
     }
 
-    if(movieChoice < 1 || movieChoice > 5)
+    else if(movieChoice <= 0 || movieChoice > 5)
     {
         printf("\nWrong Input! Invalid movie number.\n");
-        return 0;
     }
 
+    }while(movieChoice <= 0 || movieChoice > 5);
+
     // Show number input
-    printf("Enter show number (1-2): ");
+        do
+    {
+    printf("-------------------------------------\n");
+    printf("Enter show number (1-2) : ");
 
     if(scanf("%d", &showChoice) != 1)
     {
         printf("\nWrong Input! Please enter numbers only.\n");
-        return 0;
+        while(getchar() != '\n');
+        showChoice = 0;
     }
 
-    if(showChoice < 1 || showChoice > 2)
+    else if(showChoice <= 0 || showChoice > 2)
     {
         printf("\nWrong Input! Invalid show number.\n");
-        return 0;
     }
+
+    }while(showChoice <= 0 || showChoice > 2);
+
 
     // Convert to 0-based index
     displaySeatMap(movieChoice - 1, showChoice - 1);
