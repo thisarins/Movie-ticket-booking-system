@@ -1,9 +1,5 @@
 #include <stdio.h>
 
-/* ------------------------------------------------------------------
-   Dummy versions of Member 2's data, ONLY so this file can run alone.
-------------------------------------------------------------------- */
-
 char movies[5][30] =
 {
     "Super girl",
@@ -24,14 +20,12 @@ char showTimes[5][2][20] =
 
 int seats[5][2][5][10] = {0};
 
-/* ------------------------------------------------------------------ */
-
-/* Mark a seat as booked. Returns 1 on success, 0 if already booked/invalid */
+// Book seat
 int bookSeat(int movie, int show, int row, int col)
 {
     if(row < 0 || row >= 5 || col < 0 || col >= 10)
     {
-        printf("Invalid seat position.\n");
+        printf("Wrong Input! Invalid seat position.\n");
         return 0;
     }
 
@@ -45,124 +39,151 @@ int bookSeat(int movie, int show, int row, int col)
     return 1;
 }
 
-/* Small helper to show seat status */
+// Show seat status
 void printSeatStatus(int movie, int show, int row, int col)
 {
     if(row < 0 || row >= 5 || col < 0 || col >= 10)
     {
-        printf("Invalid seat position.\n");
+        printf("Wrong Input! Invalid seat position.\n");
         return;
     }
 
-    printf("\nSeat %c%d status: %s\n",
+    printf("\nSeat %c%d : %s\n",
            'A' + row,
            col + 1,
-           seats[movie][show][row][col] == 1 ? "Booked (X)" : "Available (O)");
+           seats[movie][show][row][col] == 1 ?
+           "Booked (X)" : "Available (O)");
 }
-
-/* Print the entire seat map for a movie/show as a grid */
+// Show seat map
 void printSeatMap(int movie, int show)
 {
-    int r, c;
+    int i,j;
 
-    printf("\n===== Seat Map: %s (Show %d - %s) =====\n",
-           movies[movie], show + 1, showTimes[movie][show]);
+    printf("\n=========== SEAT MAP ===========\n");
 
-    printf("      ");
-    for(c = 0; c < 10; c++)
-        printf("%2d ", c + 1);
+    printf("    ");
+    for(j = 1; j <= 10; j++)
+        printf("%2d ", j);
+
     printf("\n");
 
-    for(r = 0; r < 5; r++)
+    for(i = 0; i < 5; i++)
     {
-        printf("Row %c: ", 'A' + r);
-        for(c = 0; c < 10; c++)
+        printf("%c   ", 'A' + i);
+
+        for(j = 0; j < 10; j++)
         {
-            printf(" %c ", seats[movie][show][r][c] == 1 ? 'X' : 'O');
+            if(seats[movie][show][i][j] == 0)
+                printf(" O ");
+            else
+                printf(" X ");
         }
+
         printf("\n");
     }
-    printf("=====================================\n");
+    printf("O = Available\n");
+    printf("X = Booked\n");
 }
-
-/* ---------------- TEST MAIN ---------------- */
-
-int main()
+// Member 3 Seat Booking Function
+void seatBooking(int movie, int show)
 {
-    int movie, show, row, col;
     char rowCh;
-    char again;
-
-    printf("Movies Available\n");
-    printf("1. Super girl\n");
-    printf("2. Avatar 03\n");
-    printf("3. Jurassic World Rebirth\n");
-    printf("4. Moana (Live Action)\n");
-    printf("5. The Odyssey\n");
-
-    printf("\nSelect Movie (1-5): ");
-    scanf("%d", &movie);
-
-    if(movie < 1 || movie > 5)
-    {
-        printf("Invalid movie selection!\n");
-        return 0;
-    }
-
-    printf("Select Show (1-2): ");
-    scanf("%d", &show);
-
-    if(show < 1 || show > 2)
-    {
-        printf("Invalid show selection!\n");
-        return 0;
-    }
-
-    movie--;
-    show--;
-
-    /* Loop: let the user book as many seats as they want, one at a time */
+    int again;
+    int row, col;
     do
     {
-        printf("\nEnter Row (A-E): ");
-        scanf(" %c", &rowCh);
-
-        if(rowCh >= 'a' && rowCh <= 'e')
+        // Row input
+        do
         {
-            rowCh = rowCh - 32;
-        }
+            printf("-------------------------------------");
+            printf("\nEnter Seat Row (A-E)   : ");
+            scanf(" %c", &rowCh);
 
-        row = rowCh - 'A';
+            if(rowCh >= 'a' && rowCh <= 'e')
+                rowCh = rowCh - 32;
 
-        printf("Enter Seat Number (1-10): ");
-        scanf("%d", &col);
-        col--;
+            row = rowCh - 'A';
 
-        /* Validate row/col BEFORE using them anywhere */
-        if(row < 0 || row >= 5 || col < 0 || col >= 10)
-        {
-            printf("Invalid seat position entered. Try again.\n");
-        }
-        else
-        {
-            printSeatStatus(movie, show, row, col);
-
-            if(bookSeat(movie, show, row, col))
-            {
-                printf("Seat booked successfully!\n");
+            if(row < 0 || row >= 5){
+                printf("Wrong Input! Invalid row.\n");
             }
 
-            printSeatStatus(movie, show, row, col);
+        }while(row < 0 || row >= 5);
+
+        // Seat number input
+        do
+        {
+            printf("\n-------------------------------------");
+            printf("\nEnter Seat Number (1-10): ");
+
+            if(scanf("%d", &col) != 1){
+                printf("Wrong Input! Enter numbers only.\n");
+                while(getchar() != '\n');
+                col = 0;
+            }
+
+            else if(col < 1 || col > 10){
+                printf("Wrong Input! Invalid seat number.\n");
+            }
+        }while(col < 1 || col > 10);
+
+        col--;
+        printSeatStatus(movie, show, row, col);
+        
+        if(bookSeat(movie, show, row, col)){
+            printf("Seat booked successfully!\n");
         }
 
-        printf("\nBook another seat? (y/n): ");
-        scanf(" %c", &again);
+        printf("\nBook another seat? (yes = 1 / No = 0): ");
+        scanf(" %d", &again);
 
-    } while(again == 'y' || again == 'Y');
 
-    /* Final seat map after all bookings are done */
-    printf("\n===== FINAL seat map after all bookings =====\n");
+    }while(again == 1);
+
     printSeatMap(movie, show);
+    printf("\nThank you!\n");
+}
 
+// Main Function
+int main()
+{
+    int movieChoice, showChoice;
+    // Movie selection
+    do
+    {
+        printf("--------------------------------\n");
+        printf("Enter movie number (1-5): ");
+
+        if(scanf("%d", &movieChoice) != 1){
+            printf("Wrong Input! Please enter numbers only.\n");
+            while(getchar() != '\n');
+            movieChoice = 0;
+        }
+
+        else if(movieChoice <= 0 || movieChoice > 5){
+            printf("Wrong Input! Invalid movie number.");
+        }
+
+    }while(movieChoice <= 0 || movieChoice > 5);
+    // Show selection
+    do
+    {
+        printf("--------------------------------\n");
+        printf("Enter show number (1-2) : ");
+
+        if(scanf("%d", &showChoice) != 1){
+            printf("Wrong Input! Please enter numbers only.");
+            while(getchar() != '\n');
+            showChoice = 0;
+        }
+
+        else if(showChoice <= 0 || showChoice > 2){
+            printf("Wrong Input! Invalid show number.");
+        }
+    }while(showChoice <= 0 || showChoice > 2);
+
+    movieChoice--;
+    showChoice--;
+    seatBooking(movieChoice, showChoice);
     return 0;
 }
