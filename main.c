@@ -4,7 +4,7 @@
 #include "member02.c"
 #include "member03.c"
 #include "member04.c"
-#include "member 5.c"
+#include "member05.c"
 
 #define ROWS 5
 #define COLS 10
