@@ -124,9 +124,9 @@ char readDiscountType(void)
         }
         clearInputBuffer();
 
-        if (discount == 'S'  discount == 's'
-            discount == 'E'  discount == 'e'
-            discount == 'G'  discount == 'g'
+        if (discount == 'S' || discount == 's'
+            discount == 'E' || discount == 'e'
+            discount == 'G' || discount == 'g'
             discount == 'N' || discount == 'n')
         {
             return discount;
