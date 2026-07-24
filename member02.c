@@ -1,7 +1,3 @@
-/* ==========================================================
-   MEMBER 2 — Movie & Showtime Display  (functions only)
-   ========================================================== */
-
 void displayMovies(void)
 {
     int i, j;
