@@ -1,35 +1,16 @@
-#include <stdio.h>
+/* ==========================================================
+   MEMBER 2 — Movie & Showtime Display  (functions only)
+   ========================================================== */
 
-char movies[5][30] =
-{
-    "Super girl",
-    "Avatar 03",
-    "Jurassic World Rebirth",
-    "Moana(Live Action)",
-    "The Odyssey"
-};
-
-char showTimes[5][2][20] =
-{
-    {"10.00 AM", "4.00 PM"},
-    {"1.00 PM", "7.00 PM"},
-    {"11.00 AM", "8.00 PM"},
-    {"10.00 AM", "2.00 PM"},
-    {"1.00 PM", "7.00 PM"}
-};
-
-int seats[5][2][5][10] = {0};
-
-void displayMovies()
+void displayMovies(void)
 {
     int i, j;
     printf("\n=========== MOVIES ===========\n");
 
-    for(i = 0; i < 5; i++)
+    for (i = 0; i < NUM_MOVIES; i++)
     {
         printf("\nMovie %d : %s\n", i + 1, movies[i]);
-
-        for(j = 0; j < 2; j++)
+        for (j = 0; j < NUM_SHOWS; j++)
         {
             printf("Show %d  : %s\n", j + 1, showTimes[i][j]);
         }
@@ -39,33 +20,20 @@ void displayMovies()
 void displaySeatMap(int movie, int show)
 {
     int i, j;
-
     printf("\n============ SEAT MAP ===========\n\n");
-
     printf("     ");
 
-    for(j = 1; j <= 10; j++)
-    {
+    for (j = 1; j <= NUM_COLS; j++)
         printf("%2d ", j);
-    }
-
     printf("\n");
 
-    for(i = 0; i < 5; i++)
+    for (i = 0; i < NUM_ROWS; i++)
     {
         printf(" %c    ", 'A' + i);
-
-        for(j = 0; j < 10; j++)
-        {
-            if(seats[movie][show][i][j] == 0)
-                printf("O  ");
-            else
-                printf("X  ");
-        }
-
+        for (j = 0; j < NUM_COLS; j++)
+            printf("%s  ", seats[movie][show][i][j] == 0 ? "O" : "X");
         printf("\n");
     }
     printf("\nO = Available\n");
     printf("X = Booked\n");
 }
-
