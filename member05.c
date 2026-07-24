@@ -20,13 +20,12 @@ struct Booking
     char movieName[50];
     int tickets;
     float price;
-    int status;   /* 1 = Active, 0 = Cancelled */
+    int status;   
 };
 
 struct Booking bookings[MAX];
 int count = 0;
 
-/* ---------- Error-handling helpers ---------- */
 void clearInputBuffer(void)
 {
     int c;
@@ -78,7 +77,7 @@ float readPositiveFloat(const char *prompt)
 
 void readLine(const char *prompt, char *buffer, int size)
 {
-    (void) size; /* buffer is sized for the %49[^\n] format below */
+    (void) size;
     while (1)
     {
         printf("%s", prompt);
@@ -93,7 +92,6 @@ void readLine(const char *prompt, char *buffer, int size)
     }
 }
 
-/* ---------- Core functions ---------- */
 void addBooking(void)
 {
     int choice;
@@ -196,7 +194,6 @@ void revenueReport(void)
     printf("Total Revenue = Rs. %.2f\n", total);
 }
 
-/* ---------- Menu-driven main ---------- */
 int main(void)
 {
     int choice;
