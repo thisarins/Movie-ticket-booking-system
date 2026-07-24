@@ -225,3 +225,50 @@ int main(void)
 
     return 0;
 }
+void seatBookingMenu(void)
+{
+    int movie, show;
+
+    displayMovies();
+    movie = readInt("\nSelect Movie (1-5): ", 1, NUM_MOVIES) - 1;
+    show  = readInt("Select Show (1-2)  : ", 1, NUM_SHOWS) - 1;
+
+    printSeatMap(movie, show);
+    seatBooking(movie, show);
+}
+
+int main(void)
+{
+    int choice;
+
+    do
+    {
+        printf("\n========== Movie Ticket Booking System ==========\n");
+        printf("1. Show Movies & Showtimes\n");
+        printf("2. Book Seats\n");
+        printf("3. Calculate Ticket Price\n");
+        printf("4. Add Booking Record\n");
+        printf("5. Search Booking\n");
+        printf("6. Cancel Booking\n");
+        printf("7. Revenue Report\n");
+        printf("8. Exit\n");
+
+        choice = readInt("Enter Choice: ", 1, 8);
+
+        switch (choice)
+        {
+            case 1: displayMovies();     break;
+            case 2: seatBookingMenu();   break;
+            case 3: priceCalculator();   break;
+            case 4: addBooking();        break;
+            case 5: searchBooking();     break;
+            case 6: cancelBooking();     break;
+            case 7: revenueReport();     break;
+            case 8: printf("Thank You!\n"); break;
+        }
+
+    } while (choice != 8);
+
+    return 0;
+}
+
