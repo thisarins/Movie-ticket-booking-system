@@ -1,43 +1,18 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-/* ------------------------------------------------------------------
-   Dummy version of Member 2's movie names, ONLY so this file can run
-   alone (just to print which movie the price is for).
-------------------------------------------------------------------- */
-char movies[3][30] =
-{
-    "Superman",
-    "Avatar",
-    "Jurassic World"
-};
-/* ------------------------------------------------------------------ */
-
-/* ---- Ticket base price for each movie (Rs.) ---- */
-double basePrice[3] = {800.00, 750.00, 900.00};
-
-/*
-   Calculate final price after discount.
-   discountType: 'S'/'s' = Student (10% off)
-                 'E'/'e' = Senior  (15% off)
-                 'G'/'g' = Group of 5+ (20% off)
-                 any other char = No discount
-*/
 double calculatePrice(int movie, char discountType, int groupSize)
 {
     double price = basePrice[movie];
 
-    if(discountType == 'S' || discountType == 's')
+    if (discountType == 'S' || discountType == 's')
     {
         price = price * 0.90;
     }
-    else if(discountType == 'E' || discountType == 'e')
+    else if (discountType == 'E' || discountType == 'e')
     {
         price = price * 0.85;
     }
-    else if(discountType == 'G' || discountType == 'g')
+    else if (discountType == 'G' || discountType == 'g')
     {
-        if(groupSize >= 5)
+        if (groupSize >= 5)
             price = price * 0.80;
         else
             printf("Group discount needs 5 or more people. Normal price applied.\n");
@@ -46,33 +21,23 @@ double calculatePrice(int movie, char discountType, int groupSize)
     return price;
 }
 
-/* ---------------- TEST MAIN (Price Calculation only) ---------------- */
-int main()
+void priceCalculator(void)
 {
     int movie;
     char discount;
-    int groupSize;
+    int groupSize = 1;
     double price;
 
-    printf("Movies available: 1-Superman  2-Avatar  3-Jurassic World\n");
-    printf("Select Movie (1-3): ");
-    scanf("%d", &movie);
-    movie--;
+    displayMovies();
+    movie = readInt("\nSelect Movie (1-5): ", 1, NUM_MOVIES) - 1;
 
-    printf("Discount Type (S=Student, E=Senior, G=Group, N=None): ");
-    scanf(" %c", &discount);
+    discount = readDiscountType();
 
-    groupSize = 1;
-    if(discount == 'G' || discount == 'g')
-    {
-        printf("Enter Group Size: ");
-        scanf("%d", &groupSize);
-    }
+    if (discount == 'G' || discount == 'g')
+        groupSize = readInt("Enter Group Size: ", 1, 1000);
 
     price = calculatePrice(movie, discount, groupSize);
 
     printf("\nMovie      : %s\n", movies[movie]);
     printf("Final Price: Rs. %.2f\n", price);
-
-    return 0;
 }

@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "member02.c"
+#include "member03.c"
+#include "member04.c"
+#include "member05.c"
 
 #define ROWS 5
 #define COLS 10
