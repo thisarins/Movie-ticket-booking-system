@@ -1,6 +1,3 @@
-/* ==========================================================
-   MEMBER 5 — Booking Records (Add / Search / Cancel / Revenue)
-   ========================================================== */
 #include <stdio.h>
 #include <string.h>
 
