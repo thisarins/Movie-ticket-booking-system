@@ -1,7 +1,3 @@
-/* ==========================================================
-   MEMBER 3 — Seat Booking  (functions only)
-   ========================================================== */
-
 void printSeatMap(int movie, int show)
 {
     int i, j;
