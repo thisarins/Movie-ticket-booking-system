@@ -1,14 +1,3 @@
-/* ==========================================================
-   MEMBER 4 — Ticket Pricing & Discounts  (functions only)
-   ========================================================== */
-
-/*
-   Calculate final price after discount.
-   discountType: 'S'/'s' = Student (10% off)
-                 'E'/'e' = Senior  (15% off)
-                 'G'/'g' = Group of 5+ (20% off)
-                 any other char = No discount
-*/
 double calculatePrice(int movie, char discountType, int groupSize)
 {
     double price = basePrice[movie];
