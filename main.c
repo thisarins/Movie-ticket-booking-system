@@ -1,169 +1,439 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include "member02.c"
-#include "member03.c"
-#include "member04.c"
-#include "member05.c"
 
-#define ROWS 5
-#define COLS 10
-#define TOTAL_SEATS 50
+#define MAX_BOOKINGS 100
+#define NUM_MOVIES   5
+#define NUM_SHOWS    2
+#define NUM_ROWS     5
+#define NUM_COLS     10
 
-// --- Data Structures ---
+char movies[NUM_MOVIES][30] =
+{
+    "Super girl",
+    "Avatar 03",
+    "Jurassic World Rebirth",
+    "Moana(Live Action)",
+    "The Odyssey"
+};
 
-typedef struct {
+char showTimes[NUM_MOVIES][NUM_SHOWS][20] =
+{
+    {"10.00 AM", "4.00 PM"},
+    {"1.00 PM",  "7.00 PM"},
+    {"11.00 AM", "8.00 PM"},
+    {"10.00 AM", "2.00 PM"},
+    {"1.00 PM",  "7.00 PM"}
+};
+
+int seats[NUM_MOVIES][NUM_SHOWS][NUM_ROWS][NUM_COLS] = {0};
+
+double basePrice[NUM_MOVIES] = {800.00, 750.00, 900.00, 850.00, 900.00};
+
+struct Booking
+{
+    int  bookingID;
     char customerName[50];
-    int seatRow;
-    int seatCol;
-    double pricePaid;
-    int isBooked; // 0 = Available, 1 = Booked
-} Booking;
+    char movieName[50];
+    int  tickets;
+    float price;
+    int  status;   /* 1 = Active, 0 = Cancelled */
+};
 
-typedef struct {
-    char time[20];
-    int seats[ROWS][COLS]; // 0 = Empty (.), 1 = Taken (X)
-    Booking bookings[ROWS][COLS];
-    double totalRevenue;
-    int ticketsSold;
-} Showtime;
+struct Booking bookings[MAX_BOOKINGS];
+int bookingCount = 0;
 
-typedef struct {
-    int id;
-    char title[50];
-    Showtime showtimes[2]; // Each movie has 2 showtimes
-} Movie;
+/* ---------- Error-handling helpers (shared by everyone) ---------- */
+void clearInputBuffer(void)
+{
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
+}
 
-// --- Function Prototypes for Team Members ---
-
-void initData(Movie movies[]);
-void viewShowtimes(Movie movies[]);                 // Member 2 Task
-void viewSeatMap(Movie movies[]);                  // Member 2 Task
-void bookSeat(Movie movies[]);                     // Member 3 & 4 Task
-void cancelBooking(Movie movies[]);                // Member 5 Task
-void searchBooking(Movie movies[]);                // Member 5 Task
-void revenueReport(Movie movies[]);                // Member 5 Task
-
-// --- Main Function (Member 1 Task) ---
-int main() {
-    Movie movies[3]; // Fixed list of 3 movies
-    int choice;
-
-    // Hardcode initial movie and showtime data
-    initData(movies);
-
-    while (1) {
-        printf("\n=========================================\n");
-        printf("   MOVIE TICKET BOOKING SYSTEM (CSC1031)  \n");
-        printf("=========================================\n");
-        printf("1. View Showtimes\n");
-        printf("2. View Seat Map\n");
-        printf("3. Book a Seat\n");
-        printf("4. Cancel a Booking\n");
-        printf("5. Search Booking\n");
-        printf("6. View Revenue Report\n");
-        printf("7. Exit\n");
-        printf("Enter your choice (1-7): ");
-
-        // Input Validation: Prevents program from crashing if letters are typed
-        if (scanf("%d", &choice) != 1) {
-            printf("\n[Error] Invalid input! Please enter a number.\n");
-            while (getchar() != '\n'); // Clear the input buffer
+int readInt(const char *prompt, int min, int max)
+{
+    int value, result;
+    while (1)
+    {
+        printf("%s", prompt);
+        result = scanf("%d", &value);
+        if (result != 1)
+        {
+            printf("Wrong Input! Please enter numbers only.\n");
+            clearInputBuffer();
             continue;
         }
-
-        switch (choice) {
-            case 1:
-                viewShowtimes(movies);
-                break;
-            case 2:
-                viewSeatMap(movies);
-                break;
-            case 3:
-                bookSeat(movies);
-                break;
-            case 4:
-                cancelBooking(movies);
-                break;
-            case 5:
-                searchBooking(movies);
-                break;
-            case 6:
-                revenueReport(movies);
-                break;
-            case 7:
-                printf("\nThank you for using the system. Goodbye!\n");
-                exit(0);
-            default:
-                printf("\n[Error] Invalid choice! Please select between 1 and 7.\n");
+        clearInputBuffer();
+        if (value < min || value > max)
+        {
+            printf("Wrong Input! Enter a value between %d and %d.\n", min, max);
+            continue;
         }
+        return value;
     }
-    return 0;
 }
 
-// --- Initialize Hardcoded Data ---
-void initData(Movie movies[]) {
-    // Movie 1 Setup
-    movies[0].id = 1;
-    strcpy(movies[0].title, "Movie Alpha");
-    strcpy(movies[0].showtimes[0].time, "10:00 AM");
-    strcpy(movies[0].showtimes[1].time, "02:00 PM");
+float readPositiveFloat(const char *prompt)
+{
+    float value;
+    int result;
+    while (1)
+    {
+        printf("%s", prompt);
+        result = scanf("%f", &value);
+        if (result != 1 || value <= 0)
+        {
+            printf("Wrong Input! Enter a valid positive number.\n");
+            clearInputBuffer();
+            continue;
+        }
+        clearInputBuffer();
+        return value;
+    }
+}
 
-    // Movie 2 Setup
-    movies[1].id = 2;
-    strcpy(movies[1].title, "Movie Beta");
-    strcpy(movies[1].showtimes[0].time, "01:00 PM");
-    strcpy(movies[1].showtimes[1].time, "06:00 PM");
+void readLine(const char *prompt, char *buffer, int size)
+{
+    (void) size;
+    while (1)
+    {
+        printf("%s", prompt);
+        if (scanf(" %49[^\n]", buffer) != 1 || strlen(buffer) == 0)
+        {
+            printf("Wrong Input! Text cannot be empty.\n");
+            clearInputBuffer();
+            continue;
+        }
+        clearInputBuffer();
+        return;
+    }
+}
 
-    // Movie 3 Setup
-    movies[2].id = 3;
-    strcpy(movies[2].title, "Movie Gamma");
-    strcpy(movies[2].showtimes[0].time, "04:00 PM");
-    strcpy(movies[2].showtimes[1].time, "09:00 PM");
+char readDiscountType(void)
+{
+    char discount;
+    while (1)
+    {
+        printf("Discount Type (S=Student, E=Senior, G=Group, N=None): ");
+        if (scanf(" %c", &discount) != 1)
+        {
+            printf("Wrong Input! Please try again.\n");
+            clearInputBuffer();
+            continue;
+        }
+        clearInputBuffer();
 
-    // Set all seats across all showtimes to empty initially
-    for (int m = 0; m < 3; m++) {
-        for (int s = 0; s < 2; s++) {
-            movies[m].showtimes[s].totalRevenue = 0;
-            movies[m].showtimes[s].ticketsSold = 0;
-            for (int r = 0; r < ROWS; r++) {
-                for (int c = 0; c < COLS; c++) {
-                    movies[m].showtimes[s].seats[r][c] = 0; // 0 = Available (.)
-                    movies[m].showtimes[s].bookings[r][c].isBooked = 0;
-                }
+        if (discount == 'S' || discount == 's' ||
+            discount == 'E' || discount == 'e' ||
+            discount == 'G' || discount == 'g' ||
+            discount == 'N' || discount == 'n')
+        {
+            return discount;
+        }
+        printf("Wrong Input! Enter S, E, G, or N.\n");
+    }
+}
+
+void displayMovies(void)
+{
+    int i, j;
+    printf("\n=========== MOVIES ===========\n");
+
+    for (i = 0; i < NUM_MOVIES; i++)
+    {
+        printf("\nMovie %d : %s\n", i + 1, movies[i]);
+        for (j = 0; j < NUM_SHOWS; j++)
+        {
+            printf("Show %d  : %s\n", j + 1, showTimes[i][j]);
+        }
+    }
+}
+
+void printSeatMap(int movie, int show)
+{
+    int i, j;
+    printf("\n=========== SEAT MAP ===========\n");
+    printf("    ");
+
+    for (j = 1; j <= NUM_COLS; j++)
+        printf("%2d ", j);
+    printf("\n");
+
+    for (i = 0; i < NUM_ROWS; i++)
+    {
+        printf("%c   ", 'A' + i);
+        for (j = 0; j < NUM_COLS; j++)
+            printf("%s", seats[movie][show][i][j] == 0 ? " O " : " X ");
+        printf("\n");
+    }
+    printf("O = Available\n");
+    printf("X = Booked\n");
+}
+
+int bookSeat(int movie, int show, int row, int col)
+{
+    if (row < 0 || row >= NUM_ROWS || col < 0 || col >= NUM_COLS)
+    {
+        printf("Wrong Input! Invalid seat position.\n");
+        return 0;
+    }
+    if (seats[movie][show][row][col] == 1)
+    {
+        printf("Seat already booked!\n");
+        return 0;
+    }
+    seats[movie][show][row][col] = 1;
+    return 1;
+}
+
+void printSeatStatus(int movie, int show, int row, int col)
+{
+    if (row < 0 || row >= NUM_ROWS || col < 0 || col >= NUM_COLS)
+    {
+        printf("Wrong Input! Invalid seat position.\n");
+        return;
+    }
+    printf("\nSeat %c%d : %s\n", 'A' + row, col + 1,
+           seats[movie][show][row][col] == 1 ? "Booked (X)" : "Available (O)");
+}
+
+/* Seat Booking Function */
+void seatBooking(int movie, int show)
+{
+    char rowCh;
+    int again;
+    int row, col;
+
+    do
+    {
+        do
+        {
+            printf("-------------------------------------");
+            printf("\nEnter Seat Row (A-E)   : ");
+            if (scanf(" %c", &rowCh) != 1)
+            {
+                printf("Wrong Input! Please try again.\n");
+                clearInputBuffer();
+                row = -1;
+                continue;
             }
+            clearInputBuffer();
+
+            if (rowCh >= 'a' && rowCh <= 'z')
+                rowCh = rowCh - 32;
+
+            row = rowCh - 'A';
+
+            if (row < 0 || row >= NUM_ROWS)
+                printf("Wrong Input! Invalid row.\n");
+
+        } while (row < 0 || row >= NUM_ROWS);
+
+        col = readInt("\nEnter Seat Number (1-10): ", 1, NUM_COLS) - 1;
+
+        printSeatStatus(movie, show, row, col);
+
+        if (bookSeat(movie, show, row, col))
+            printf("Seat booked successfully!\n");
+
+        again = readInt("\nBook another seat? (yes = 1 / No = 0): ", 0, 1);
+
+    } while (again == 1);
+
+    printSeatMap(movie, show);
+    printf("\nThank you!\n");
+}
+
+double calculatePrice(int movie, char discountType, int groupSize)
+{
+    double price = basePrice[movie];
+
+    if (discountType == 'S' || discountType == 's')
+    {
+        price = price * 0.90;
+    }
+    else if (discountType == 'E' || discountType == 'e')
+    {
+        price = price * 0.85;
+    }
+    else if (discountType == 'G' || discountType == 'g')
+    {
+        if (groupSize >= 5)
+            price = price * 0.80;
+        else
+            printf("Group discount needs 5 or more people. Normal price applied.\n");
+    }
+
+    return price;
+}
+
+void priceCalculator(void)
+{
+    int movie;
+    char discount;
+    int groupSize = 1;
+    double price;
+
+    displayMovies();
+    movie = readInt("\nSelect Movie (1-5): ", 1, NUM_MOVIES) - 1;
+
+    discount = readDiscountType();
+
+    if (discount == 'G' || discount == 'g')
+        groupSize = readInt("Enter Group Size: ", 1, 1000);
+
+    price = calculatePrice(movie, discount, groupSize);
+
+    printf("\nMovie      : %s\n", movies[movie]);
+    printf("Final Price: Rs. %.2f\n", price);
+}
+
+/* ---------- Booking records / revenue ---------- */
+void addBooking(void)
+{
+    int choice;
+
+    if (bookingCount >= MAX_BOOKINGS)
+    {
+        printf("Booking List is Full!\n");
+        return;
+    }
+
+    int newID = readInt("Enter Booking ID: ", 1, 999999);
+
+    for (int i = 0; i < bookingCount; i++)
+    {
+        if (bookings[i].bookingID == newID)
+        {
+            printf("Booking ID Already Exists!\n");
+            return;
         }
     }
+    bookings[bookingCount].bookingID = newID;
+
+    readLine("Enter Customer Name: ", bookings[bookingCount].customerName, 50);
+
+    printf("\nAvailable Movies\n");
+    for (int i = 0; i < NUM_MOVIES; i++)
+        printf("%d. %s\n", i + 1, movies[i]);
+
+    choice = readInt("Select Movie (1-5): ", 1, NUM_MOVIES);
+    strcpy(bookings[bookingCount].movieName, movies[choice - 1]);
+
+    bookings[bookingCount].tickets = readInt("Enter Number of Tickets: ", 1, 1000);
+    bookings[bookingCount].price = readPositiveFloat("Enter Ticket Price: ");
+    bookings[bookingCount].status = 1;
+
+    bookingCount++;
+    printf("Booking Added Successfully!\n");
 }
 
-// --- Empty Placeholder Functions for Team Implementation ---
+void searchBooking(void)
+{
+    int id = readInt("Enter Booking ID: ", 1, 999999);
+    int found = 0;
 
-void viewShowtimes(Movie movies[]) {
-    // TODO: To be implemented by Member 2
-    printf("\n[Under Construction] View Showtimes feature is coming soon!\n");
+    for (int i = 0; i < bookingCount; i++)
+    {
+        if (bookings[i].bookingID == id)
+        {
+            printf("\nBooking ID : %d\n", bookings[i].bookingID);
+            printf("Customer   : %s\n", bookings[i].customerName);
+            printf("Movie      : %s\n", bookings[i].movieName);
+            printf("Tickets    : %d\n", bookings[i].tickets);
+            printf("Price      : Rs. %.2f\n", bookings[i].price);
+            printf("Status     : %s\n", bookings[i].status == 1 ? "Active" : "Cancelled");
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found)
+        printf("Booking Not Found!\n");
 }
 
-void viewSeatMap(Movie movies[]) {
-    // TODO: To be implemented by Member 2
-    printf("\n[Under Construction] View Seat Map feature is coming soon!\n");
+void cancelBooking(void)
+{
+    int id = readInt("Enter Booking ID: ", 1, 999999);
+    int found = 0;
+
+    for (int i = 0; i < bookingCount; i++)
+    {
+        if (bookings[i].bookingID == id)
+        {
+            if (bookings[i].status == 0)
+                printf("Booking Already Cancelled!\n");
+            else
+            {
+                bookings[i].status = 0;
+                printf("Booking Cancelled Successfully!\n");
+            }
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found)
+        printf("Booking Not Found!\n");
 }
 
-void bookSeat(Movie movies[]) {
-    // TODO: To be implemented by Member 3 and Member 4
-    printf("\n[Under Construction] Book a Seat feature is coming soon!\n");
+void revenueReport(void)
+{
+    float total = 0;
+
+    for (int i = 0; i < bookingCount; i++)
+    {
+        if (bookings[i].status == 1)
+            total += bookings[i].tickets * bookings[i].price;
+    }
+
+    printf("\n===== Revenue Report =====\n");
+    printf("Total Revenue = Rs. %.2f\n", total);
 }
 
-void cancelBooking(Movie movies[]) {
-    // TODO: To be implemented by Member 5
-    printf("\n[Under Construction] Cancel Booking feature is coming soon!\n");
+void seatBookingMenu(void)
+{
+    int movie, show;
+
+    displayMovies();
+    movie = readInt("\nSelect Movie (1-5): ", 1, NUM_MOVIES) - 1;
+    show  = readInt("Select Show (1-2)  : ", 1, NUM_SHOWS) - 1;
+
+    printSeatMap(movie, show);
+    seatBooking(movie, show);
 }
 
-void searchBooking(Movie movies[]) {
-    // TODO: To be implemented by Member 5
-    printf("\n[Under Construction] Search Booking feature is coming soon!\n");
-}
+int main(void)
+{
+    int choice;
 
-void revenueReport(Movie movies[]) {
-    // TODO: To be implemented by Member 5
-    printf("\n[Under Construction] Revenue Report feature is coming soon!\n");
+    do
+    {
+        printf("\n========== Movie Ticket Booking System ==========\n");
+        printf("1. Show Movies & Showtimes\n");
+        printf("2. Book Seats\n");
+        printf("3. Calculate Ticket Price\n");
+        printf("4. Add Booking Record\n");
+        printf("5. Search Booking\n");
+        printf("6. Cancel Booking\n");
+        printf("7. Revenue Report\n");
+        printf("8. Exit\n");
+
+        choice = readInt("Enter Choice: ", 1, 8);
+
+        switch (choice)
+        {
+            case 1: displayMovies();     break;
+            case 2: seatBookingMenu();   break;
+            case 3: priceCalculator();   break;
+            case 4: addBooking();        break;
+            case 5: searchBooking();     break;
+            case 6: cancelBooking();     break;
+            case 7: revenueReport();     break;
+            case 8: printf("Thank You!\n"); break;
+        }
+
+    } while (choice != 8);
+
+    return 0;
 }
