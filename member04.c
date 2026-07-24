@@ -1,22 +1,76 @@
+/* ==========================================================
+   MEMBER 4 — Ticket Pricing & Discounts
+   ========================================================== */
 #include <stdio.h>
-#include <stdlib.h>
 
-/* ------------------------------------------------------------------
-   Dummy version of Member 2's movie names, ONLY so this file can run
-   alone (just to print which movie the price is for).
-------------------------------------------------------------------- */
-char movies[5][30] =
+#define NUM_MOVIES 5
+
+char movies[NUM_MOVIES][30] =
 {
-    "Supergirl",
+    "Super girl",
     "Avatar 03",
     "Jurassic World Rebirth",
-    "Moana (live action)",
+    "Moana(Live Action)",
     "The Odyssey"
 };
-/* ------------------------------------------------------------------ */
 
-/* ---- Ticket base price for each movie (Rs.) ---- */
-double basePrice[5] = {800.00, 750.00, 900.00, 850.00, 900.00};
+double basePrice[NUM_MOVIES] = {800.00, 750.00, 900.00, 850.00, 900.00};
+
+/* ---------- Error-handling helpers ---------- */
+void clearInputBuffer(void)
+{
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
+}
+
+int readInt(const char *prompt, int min, int max)
+{
+    int value, result;
+    while (1)
+    {
+        printf("%s", prompt);
+        result = scanf("%d", &value);
+        if (result != 1)
+        {
+            printf("Wrong Input! Please enter numbers only.\n");
+            clearInputBuffer();
+            continue;
+        }
+        clearInputBuffer();
+        if (value < min || value > max)
+        {
+            printf("Wrong Input! Enter a value between %d and %d.\n", min, max);
+            continue;
+        }
+        return value;
+    }
+}
+
+char readDiscountType(void)
+{
+    char discount;
+    while (1)
+    {
+        printf("Discount Type (S=Student, E=Senior, G=Group, N=None): ");
+        if (scanf(" %c", &discount) != 1)
+        {
+            printf("Wrong Input! Please try again.\n");
+            clearInputBuffer();
+            continue;
+        }
+        clearInputBuffer();
+
+        if (discount == 'S' || discount == 's' ||
+            discount == 'E' || discount == 'e' ||
+            discount == 'G' || discount == 'g' ||
+            discount == 'N' || discount == 'n')
+        {
+            return discount;
+        }
+        printf("Wrong Input! Enter S, E, G, or N.\n");
+    }
+}
 
 /*
    Calculate final price after discount.
@@ -29,17 +83,17 @@ double calculatePrice(int movie, char discountType, int groupSize)
 {
     double price = basePrice[movie];
 
-    if(discountType == 'S' || discountType == 's')
+    if (discountType == 'S' || discountType == 's')
     {
         price = price * 0.90;
     }
-    else if(discountType == 'E' || discountType == 'e')
+    else if (discountType == 'E' || discountType == 'e')
     {
         price = price * 0.85;
     }
-    else if(discountType == 'G' || discountType == 'g')
+    else if (discountType == 'G' || discountType == 'g')
     {
-        if(groupSize >= 5)
+        if (groupSize >= 5)
             price = price * 0.80;
         else
             printf("Group discount needs 5 or more people. Normal price applied.\n");
@@ -48,64 +102,22 @@ double calculatePrice(int movie, char discountType, int groupSize)
     return price;
 }
 
-/* ---------------- TEST MAIN (Price Calculation only) ---------------- */
-int main()
+/* ---------- Standalone test main ---------- */
+int main(void)
 {
     int movie;
     char discount;
-    int groupSize;
+    int groupSize = 1;
     double price;
-    int inputResult;
 
-    printf("Movies available: 1-Supergirl  2-Avatar 03  3-Jurassic World Rebirth  4-Moana  5-The Odyssey\n");
+    printf("Movies available: 1-Super girl  2-Avatar 03  3-Jurassic World Rebirth  4-Moana  5-The Odyssey\n");
 
-    do {
-        printf("Select Movie (1-5): ");
-        inputResult = scanf("%d", &movie);
+    movie = readInt("Select Movie (1-5): ", 1, NUM_MOVIES) - 1;
 
-        if (inputResult != 1 || movie < 1 || movie > 5) {
-            printf("[ERROR] Invalid choice! Please select a valid movie number between 1 and 5.\n\n");
-            while (getchar() != '\n'); // Clear residual input buffer to prevent infinite loops
-        } else {
-            break;
-        }
-    } while (1);
+    discount = readDiscountType();
 
-    movie--; 
-
-    /* Loop for Discount Type Selection */
-    do {
-        printf("Discount Type (S=Student, E=Senior, G=Group, N=None): ");
-        inputResult = scanf(" %c", &discount);
-
-        if (inputResult != 1 || (discount != 'S' && discount != 's' &&
-                                 discount != 'E' && discount != 'e' &&
-                                 discount != 'G' && discount != 'g' &&
-                                 discount != 'N' && discount != 'n')) {
-            printf("[ERROR] Invalid discount code! Please enter S, E, G, or N.\n\n");
-            while (getchar() != '\n'); // Clear residual input buffer
-        } else {
-            break;
-        }
-    } while (1);
-
-    groupSize = 1;
-
-    /* Loop for Group Size Entry if Group Discount Selected */
-    if(discount == 'G' || discount == 'g')
-    {
-        do {
-            printf("Enter Group Size: ");
-            inputResult = scanf("%d", &groupSize);
-
-            if (inputResult != 1 || groupSize <= 0) {
-                printf("[ERROR] Invalid group size! Please enter a valid number (1 or more).\n\n");
-                while (getchar() != '\n'); // Clear residual input buffer
-            } else {
-                break;
-            }
-        } while (1);
-    }
+    if (discount == 'G' || discount == 'g')
+        groupSize = readInt("Enter Group Size: ", 1, 1000);
 
     price = calculatePrice(movie, discount, groupSize);
 
