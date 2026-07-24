@@ -20,7 +20,7 @@ struct Booking
     char movieName[50];
     int tickets;
     float price;
-    int status;   
+    int status;  
 };
 
 struct Booking bookings[MAX];
@@ -229,6 +229,7 @@ void seatBookingMenu(void)
     displayMovies();
     movie = readInt("\nSelect Movie (1-5): ", 1, NUM_MOVIES) - 1;
     show  = readInt("Select Show (1-2)  : ", 1, NUM_SHOWS) - 1;
+
     printSeatMap(movie, show);
     seatBooking(movie, show);
 }
@@ -236,6 +237,7 @@ void seatBookingMenu(void)
 int main(void)
 {
     int choice;
+
     do
     {
         printf("\n========== Movie Ticket Booking System ==========\n");
@@ -261,6 +263,8 @@ int main(void)
             case 7: revenueReport();     break;
             case 8: printf("Thank You!\n"); break;
         }
+
     } while (choice != 8);
+
     return 0;
 }
